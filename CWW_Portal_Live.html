@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CWW - Classroom Without Walls</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --forest-dark: #1B4332;
+      --forest-mid: #2D6A4F;
+      --forest-light: #40916C;
+      --sage: #74C69D;
+      --mint: #B7E4C7;
+      --cream: #F8F9F0;
+      --earth: #8B7355;
+      --sunset: #E07A3D;
+      --golden: #DDA15E;
+      --text-dark: #1A1A1A;
+      --text-mid: #4A4A4A;
+      --text-light: #6B6B6B;
+      --white: #FFFFFF;
+      --shadow: rgba(27, 67, 50, 0.12);
+      --shadow-strong: rgba(27, 67, 50, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; letter-spacing: -0.02em; }
+
+    .header {
+      background: linear-gradient(135deg, var(--forest-dark) 0%, var(--forest-mid) 100%);
+      color: var(--white);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      animation: float 20s linear infinite;
+    }
+
+    @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 30px); } }
+
+    .header-content { position: relative; z-index: 1; }
+    .header h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    .header-subtitle { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+    .header-badge { display: inline-block; background: var(--sunset); color: var(--white); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-top: 1rem; }
+
+    .config-banner {
+      background: linear-gradient(90deg, var(--sunset), var(--golden));
+      color: var(--white);
+      padding: 0.75rem 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .config-banner a { color: var(--white); font-weight: 600; }
+
+    .filters {
+      background: var(--white);
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 20px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .filter-btn {
+      padding: 0.6rem 1.5rem;
+      border: 2px solid var(--mint);
+      background: var(--white);
+      color: var(--forest-mid);
+      border-radius: 50px;
+      cursor: pointer;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover { background: var(--mint); transform: translateY(-2px); }
+    .filter-btn.active { background: var(--forest-mid); border-color: var(--forest-mid); color: var(--white); box-shadow: 0 4px 15px var(--shadow-strong); }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--cream);
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      margin-left: auto;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus-within { border-color: var(--forest-light); background: var(--white); }
+    .search-box input { border: none; background: transparent; padding: 0.3rem 0.5rem; font-family: 'Source Sans 3', sans-serif; font-size: 0.95rem; width: 200px; outline: none; }
+    .search-icon { color: var(--text-light); }
+
+    .main { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    .section-title { font-size: 1.8rem; color: var(--forest-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-title::before { content: ''; width: 4px; height: 30px; background: linear-gradient(to bottom, var(--sunset), var(--golden)); border-radius: 2px; }
+
+    .trips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+
+    .trip-card {
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px var(--shadow);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .trip-card:hover { transform: translateY(-8px); box-shadow: 0 12px 40px var(--shadow-strong); }
+    .trip-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--forest-light), var(--sage)); }
+
+    .card-header { padding: 1.5rem 1.5rem 1rem; position: relative; }
+    .card-badge { position: absolute; top: 1rem; right: 1rem; background: var(--mint); color: var(--forest-dark); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .card-badge.expedition { background: var(--sunset); color: var(--white); }
+    .card-grade { font-size: 0.85rem; color: var(--forest-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+    .card-title { font-size: 1.4rem; color: var(--forest-dark); margin-bottom: 0.5rem; line-height: 1.3; }
+    .card-theme { color: var(--text-mid); font-style: italic; font-size: 0.95rem; }
+    .card-body { padding: 0 1.5rem 1.5rem; }
+    .card-info { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+    .info-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: var(--text-mid); }
+    .info-icon { color: var(--forest-light); }
+    .card-footer { background: var(--cream); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .card-sdg { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--earth); font-weight: 500; }
+    .view-details { color: var(--sunset); font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.3rem; transition: gap 0.3s ease; }
+    .trip-card:hover .view-details { gap: 0.6rem; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 1rem;
+      opacity: 0; visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 20px;
+      max-width: 900px; width: 100%; max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--forest-dark) 0%, var(--forest-mid) 100%);
+      color: var(--white);
+      padding: 2rem;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: rgba(255,255,255,0.2); border: none; color: var(--white);
+      width: 40px; height: 40px; border-radius: 50%;
+      cursor: pointer; font-size: 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+    .modal-grade { font-size: 0.9rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; }
+    .modal-title { font-size: 2rem; margin-bottom: 0.5rem; }
+    .modal-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1rem; font-size: 0.95rem; opacity: 0.9; }
+    .modal-body { padding: 2rem; }
+
+    .modal-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--cream); padding-bottom: 0.5rem; overflow-x: auto; }
+
+    .tab-btn {
+      padding: 0.6rem 1.2rem; border: none; background: none;
+      color: var(--text-mid); font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.95rem; font-weight: 500; cursor: pointer;
+      border-radius: 8px; transition: all 0.3s ease; white-space: nowrap;
+    }
+
+    .tab-btn:hover { background: var(--cream); }
+    .tab-btn.active { background: var(--forest-mid); color: var(--white); }
+
+    .tab-content { display: none; animation: fadeIn 0.3s ease; }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .edu-card { background: var(--cream); padding: 1.25rem; border-radius: 12px; border-left: 4px solid var(--forest-light); }
+    .edu-card h4 { color: var(--forest-dark); font-size: 0.9rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .edu-card p { color: var(--text-dark); font-size: 1.1rem; font-weight: 500; }
+
+    .packing-section { margin-bottom: 1.5rem; }
+    .packing-section h4 { color: var(--forest-dark); margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--mint); }
+    .packing-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; }
+    .packing-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0; font-size: 0.95rem; color: var(--text-mid); }
+    .packing-item::before { content: '✓'; color: var(--forest-light); font-weight: bold; }
+
+    .faq-item { background: var(--cream); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+    .faq-question { padding: 1rem 1.25rem; font-weight: 600; color: var(--forest-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .faq-question:hover { background: var(--mint); }
+    .faq-answer { padding: 0 1.25rem 1rem; color: var(--text-mid); display: none; }
+    .faq-item.open .faq-answer { display: block; }
+
+    .loading { text-align: center; padding: 4rem 2rem; }
+    .loading-spinner { width: 50px; height: 50px; border: 4px solid var(--mint); border-top-color: var(--forest-mid); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-state { text-align: center; padding: 3rem 2rem; background: #FFF3CD; border-radius: 12px; margin: 2rem 0; }
+    .error-state h3 { color: #856404; margin-bottom: 1rem; }
+
+    .data-status { font-size: 0.8rem; color: var(--text-light); text-align: center; padding: 0.5rem; }
+
+    @media (max-width: 768px) {
+      .filters { padding: 1rem; }
+      .filter-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+      .search-box { width: 100%; margin: 0; }
+      .search-box input { width: 100%; }
+      .trips-grid { grid-template-columns: 1fr; }
+      .modal { margin: 0.5rem; max-height: 95vh; }
+      .modal-header { padding: 1.5rem; }
+      .modal-title { font-size: 1.5rem; }
+      .modal-body { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/papaparse@5/papaparse.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    // ===============================================================
+    // CONFIGURACIÓN - ¡ACTUALIZA ESTOS ENLACES CON TUS GOOGLE SHEETS!
+    // ===============================================================
+    const CONFIG = {
+      // Instrucciones:
+      // 1. Abre tu Google Sheet
+      // 2. Ve a Archivo > Compartir > Publicar en la web
+      // 3. Selecciona cada hoja y formato CSV
+      // 4. Copia el enlace y pégalo aquí
+
+      SHEETS: {
+        trips: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSApesV5TT0KYWQNIz9JP0WPeNWvD5It7JoUOdDH367V5GblAESTethptb2boAvZPb58DXmUdyWPTlm/pub?output=csv',
+        educational: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSApesV5TT0KYWQNIz9JP0WPeNWvD5It7JoUOdDH367V5GblAESTethptb2boAvZPb58DXmUdyWPTlm/pub?gid=572957484&single=true&output=csv',
+        faqs: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSApesV5TT0KYWQNIz9JP0WPeNWvD5It7JoUOdDH367V5GblAESTethptb2boAvZPb58DXmUdyWPTlm/pub?output=csv'
+      },
+
+      // Cambiar a true cuando tengas las URLs configuradas
+      USE_LIVE_DATA: true,
+
+      // Intervalo de actualización (en minutos, 0 = solo al cargar)
+      REFRESH_INTERVAL: 5
+    };
+
+    // ========== DATOS DE RESPALDO (usados si no hay conexión) ==========
+    const FALLBACK_TRIPS = [
+      { trip_id: 'CWW-K4-FINKANA', trip_name: 'Finkana', grade_level: 'Kinder 4', division: 'Early Childhood', trip_theme: 'Farm Animals Explorer', trip_type: 'Day Trip', duration_days: 1, duration_nights: 0, location_primary: 'Finkana', oec_partner: 'Andares', sdg_number: 15, sdg_name: 'Life on Land', learner_profile: 'Innovator', core_values: 'Caring', success_skills: 'Self-management', outdoor_skills: 'Pack basic supplies with adult help', service_learning: 'Environmental awareness' },
+      { trip_id: 'CWW-K5-DERRACAMANDACA', trip_name: 'Derracamandaca', grade_level: 'Kinder 5', division: 'Early Childhood', trip_theme: "Collector's Edition", trip_type: 'Day Trip', duration_days: 1, duration_nights: 0, location_primary: 'Derracamandaca', oec_partner: 'Andares', sdg_number: 15, sdg_name: 'Life on Land', learner_profile: 'Change Agent', core_values: 'Respect, Responsibility', success_skills: 'Critical Thinking', outdoor_skills: 'Pack basic supplies with adult support', service_learning: 'Farm sustainability' },
+      { trip_id: 'CWW-1ST-BIOPARQUE', trip_name: 'Bioparque la Reserva', grade_level: '1st Grade', division: 'Elementary', trip_theme: 'Wildlife Guardians', trip_type: 'Day Trip', duration_days: 1, duration_nights: 0, location_primary: 'Bioparque la Reserva', oec_partner: 'Andares', sdg_number: 15, sdg_name: 'Life on Land', learner_profile: 'Innovator', core_values: 'Responsibility', success_skills: 'Communication', outdoor_skills: 'Pack independently with checklist', service_learning: 'Wildlife conservation' },
+      { trip_id: 'CWW-2ND-MATARREDONDA', trip_name: 'Matarredonda', grade_level: '2nd Grade', division: 'Elementary', trip_theme: 'Guardians of the Páramo', trip_type: 'Day Trip', duration_days: 1, duration_nights: 0, location_primary: 'Parque Matarredonda', oec_partner: 'Andares', sdg_number: 13, sdg_name: 'Climate Action', learner_profile: 'Community Builder', core_values: 'Caring', success_skills: 'Collaboration', outdoor_skills: 'First longer hike', service_learning: 'Páramo protection' },
+      { trip_id: 'CWW-3RD-GUATAVITA', trip_name: 'Guatavita/Suesca', grade_level: '3rd Grade', division: 'Elementary', trip_theme: 'Survivors', trip_type: 'Overnight', duration_days: 2, duration_nights: 1, location_primary: 'Guatavita/Suesca', oec_partner: 'Andares', sdg_number: 3, sdg_name: 'Good Health', learner_profile: 'Innovator', core_values: 'Responsibility', success_skills: 'Self-management', outdoor_skills: 'First overnight in tent', service_learning: 'Community support' },
+      { trip_id: 'CWW-4TH-BOYACA', trip_name: 'Boyacá', grade_level: '4th Grade', division: 'Elementary', trip_theme: 'Campesino Culture', trip_type: 'Overnight', duration_days: 4, duration_nights: 3, location_primary: 'Mongui/Iza/Paipa', oec_partner: 'Andares', sdg_number: 8, sdg_name: 'Decent Work', learner_profile: 'Community Builder', core_values: 'Caring', success_skills: 'Collaboration', outdoor_skills: 'Multi-day camping', service_learning: 'Campesino communities' },
+      { trip_id: 'CWW-5TH-COFFEE', trip_name: 'Coffee Region', grade_level: '5th Grade', division: 'Elementary', trip_theme: 'Heritage Crop', trip_type: 'Overnight', duration_days: 4, duration_nights: 3, location_primary: 'Quindío', oec_partner: 'Andares', sdg_number: 12, sdg_name: 'Responsible Consumption', learner_profile: 'Deep Thinker', core_values: 'Responsibility', success_skills: 'Self-management', outdoor_skills: 'Pitch tent, campfire', service_learning: 'Sustainable coffee' },
+      { trip_id: 'CWW-6TH-MAGDALENA', trip_name: 'Magdalena Medio', grade_level: '6th Grade', division: 'Middle School', trip_theme: 'River & Turtles', trip_type: 'Overnight', duration_days: 5, duration_nights: 4, location_primary: 'Honda/Mariquita', oec_partner: 'Kajuyali', sdg_number: 8, sdg_name: 'Decent Work', learner_profile: 'Community Builder', core_values: 'Responsibility', success_skills: 'Critical Thinking', outdoor_skills: 'Tent, campfire', service_learning: 'Turtle sanctuary' },
+      { trip_id: 'CWW-7TH-CHICAMOCHA', trip_name: 'Chicamocha Canyon', grade_level: '7th Grade', division: 'Middle School', trip_theme: 'Canyon Expedition', trip_type: 'Expedition', duration_days: 5, duration_nights: 4, location_primary: 'Barichara/Jordán', oec_partner: 'Kajuyali', sdg_number: 12, sdg_name: 'Responsible Consumption', learner_profile: 'Deep Thinker', core_values: 'Responsibility, Caring', success_skills: 'Collaboration', outdoor_skills: 'Hammock, maps', service_learning: 'Rammed earth homes' },
+      { trip_id: 'CWW-8TH-UTICA', trip_name: 'Útica Rafting', grade_level: '8th Grade', division: 'Middle School', trip_theme: 'Rafting Expedition', trip_type: 'Expedition', duration_days: 5, duration_nights: 4, location_primary: 'Útica/Tobia', oec_partner: 'Kajuyali', sdg_number: 8, sdg_name: 'Decent Work', learner_profile: 'Deep Thinker', core_values: 'Honesty, Integrity', success_skills: 'Critical Thinking', outdoor_skills: 'Rafting, knots', service_learning: 'River monitoring' },
+      { trip_id: 'CWW-9TH-SANBERNARDO', trip_name: 'San Bernardo Islands', grade_level: '9th Grade', division: 'High School', trip_theme: 'Kayak Expedition', trip_type: 'Expedition', duration_days: 6, duration_nights: 5, location_primary: 'San Bernardo Islands', oec_partner: 'Kajuyali', sdg_number: 14, sdg_name: 'Life Below Water', learner_profile: 'Innovator', core_values: 'Responsibility', success_skills: 'Self-management', outdoor_skills: 'Kayaking, beach camp', service_learning: 'Mangrove conservation' },
+      { trip_id: 'CWW-10TH-AMAZON', trip_name: 'Amazon', grade_level: '10th Grade', division: 'High School', trip_theme: 'Rainforest Experience', trip_type: 'Expedition', duration_days: 6, duration_nights: 5, location_primary: 'Leticia', oec_partner: 'Andares', sdg_number: 15, sdg_name: 'Life on Land', learner_profile: 'Community Builder', core_values: 'Respect', success_skills: 'Communication', outdoor_skills: 'Jungle survival', service_learning: 'Community immersion' },
+      { trip_id: 'CWW-11TH-COCUY', trip_name: 'El Cocuy', grade_level: '11th Grade', division: 'High School', trip_theme: 'Mountain Trek', trip_type: 'Expedition', duration_days: 6, duration_nights: 5, location_primary: 'El Cocuy', oec_partner: 'Andares', sdg_number: 13, sdg_name: 'Climate Action', learner_profile: 'Deep Thinker', core_values: 'All values', success_skills: 'All skills', outdoor_skills: 'High altitude', service_learning: "U'wa community" }
+    ];
+
+    const FALLBACK_FAQS = [
+      { category: 'General', question: 'What is the CWW program?', answer: 'CWW (Classroom Without Walls) is a journey students take through Colombia applying classroom learning to the real world, focused around the 17 UN Sustainable Development Goals.' },
+      { category: 'General', question: 'Which grades participate?', answer: 'All grades from Kinder 4 through 11th grade participate. K4-2nd have day trips, 3rd grade and up have overnight experiences.' },
+      { category: 'Safety', question: 'Who supervises the students?', answer: 'All trips are led by CNG staff members accompanied by pre-approved Outdoor Education Companies (OEC). All OEC staff have valid CPR and First Aid certifications.' },
+      { category: 'Communication', question: 'Can my child bring a cell phone?', answer: 'No. Students are not allowed to bring cell phones. This allows for full immersion in the experience.' },
+      { category: 'Packing', question: 'What size backpack is needed?', answer: 'Day trips: small backpack. 3rd-5th: 40-50L + 20L daypack. 6th-10th: 50L + 20L. 11th: 60L + 25L daypack.' }
+    ];
+
+    // ========== ICONS ==========
+    const Icons = {
+      calendar: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>,
+      location: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>,
+      users: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>,
+      search: <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
+      leaf: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path></svg>,
+      arrow: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>,
+      close: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
+      chevron: <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>,
+      refresh: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+    };
+
+    // ========== DATA FETCHING ==========
+    async function fetchSheetData(url) {
+      return new Promise((resolve, reject) => {
+        Papa.parse(url, {
+          download: true,
+          header: true,
+          complete: (results) => resolve(results.data.filter(row => Object.values(row).some(v => v))),
+          error: (error) => reject(error)
+        });
+      });
+    }
+
+    // ========== COMPONENTS ==========
+    function Header() {
+      return (
+        <header className="header">
+          <div className="header-content">
+            <h1>🌿 Classroom Without Walls</h1>
+            <p className="header-subtitle">
+              Empowering students to have a positive impact wherever they go through experiential learning across Colombia
+            </p>
+            <span className="header-badge">2025-2026 Program</span>
+          </div>
+        </header>
+      );
+    }
+
+    function ConfigBanner({ isLive, lastUpdate }) {
+      if (isLive) {
+        return (
+          <div className="data-status">
+            ✅ Datos en vivo desde Google Sheets • Última actualización: {lastUpdate}
+          </div>
+        );
+      }
+      return (
+        <div className="config-banner">
+          ⚠️ Usando datos de respaldo. <a href="#config">Configura las URLs</a> del Google Sheet para datos en vivo.
+        </div>
+      );
+    }
+
+    function Filters({ activeFilter, onFilterChange, searchTerm, onSearchChange }) {
+      const filters = ['All', 'Early Childhood', 'Elementary', 'Middle School', 'High School'];
+      return (
+        <div className="filters">
+          {filters.map(filter => (
+            <button key={filter} className={`filter-btn ${activeFilter === filter ? 'active' : ''}`} onClick={() => onFilterChange(filter)}>
+              {filter}
+            </button>
+          ))}
+          <div className="search-box">
+            <span className="search-icon">{Icons.search}</span>
+            <input type="text" placeholder="Search trips or FAQs..." value={searchTerm} onChange={(e) => onSearchChange(e.target.value)} />
+          </div>
+        </div>
+      );
+    }
+
+    function TripCard({ trip, onClick }) {
+      const isExpedition = trip.trip_type === 'Expedition';
+      return (
+        <div className="trip-card" onClick={() => onClick(trip)}>
+          <span className={`card-badge ${isExpedition ? 'expedition' : ''}`}>{trip.trip_type}</span>
+          <div className="card-header">
+            <div className="card-grade">{trip.grade_level}</div>
+            <h3 className="card-title">{trip.trip_name || trip.location_primary}</h3>
+            <p className="card-theme">"{trip.trip_theme}"</p>
+          </div>
+          <div className="card-body">
+            <div className="card-info">
+              <span className="info-item"><span className="info-icon">{Icons.calendar}</span>{trip.duration_days} day{trip.duration_days > 1 ? 's' : ''}{trip.duration_nights > 0 ? ` / ${trip.duration_nights} night${trip.duration_nights > 1 ? 's' : ''}` : ''}</span>
+              <span className="info-item"><span className="info-icon">{Icons.location}</span>{trip.location_primary}</span>
+              <span className="info-item"><span className="info-icon">{Icons.users}</span>{trip.oec_partner}</span>
+            </div>
+          </div>
+          <div className="card-footer">
+            <span className="card-sdg"><span className="info-icon">{Icons.leaf}</span>SDG {trip.sdg_number}: {trip.sdg_name}</span>
+            <span className="view-details">Details {Icons.arrow}</span>
+          </div>
+        </div>
+      );
+    }
+
+    function Modal({ trip, faqs, onClose }) {
+      const [activeTab, setActiveTab] = React.useState('overview');
+      if (!trip) return null;
+
+      const tabs = [
+        { id: 'overview', label: 'Overview' },
+        { id: 'educational', label: 'Educational' },
+        { id: 'packing', label: 'Packing' },
+        { id: 'faqs', label: 'FAQs' }
+      ];
+
+      return (
+        <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
+          <div className="modal">
+            <div className="modal-header">
+              <button className="modal-close" onClick={onClose}>{Icons.close}</button>
+              <div className="modal-grade">{trip.grade_level}</div>
+              <h2 className="modal-title">{trip.trip_name || trip.location_primary}</h2>
+              <p style={{opacity: 0.9, fontStyle: 'italic'}}>"{trip.trip_theme}"</p>
+              <div className="modal-meta">
+                <span>{Icons.calendar} {trip.duration_days} days / {trip.duration_nights} nights</span>
+                <span>{Icons.location} {trip.location_primary}</span>
+                <span>{Icons.users} {trip.oec_partner}</span>
+              </div>
+            </div>
+            <div className="modal-body">
+              <div className="modal-tabs">
+                {tabs.map(tab => (
+                  <button key={tab.id} className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>
+                ))}
+              </div>
+
+              {activeTab === 'overview' && (
+                <div className="tab-content active">
+                  <p style={{fontSize: '1.05rem', lineHeight: 1.8, marginBottom: '1.5rem'}}>
+                    The {trip.grade_level} CWW trip takes students to <strong>{trip.location_primary}</strong> for an immersive
+                    {' '}{(trip.trip_type || '').toLowerCase()} experience focused on "{trip.trip_theme}".
+                  </p>
+                  <p style={{fontSize: '1.05rem', lineHeight: 1.8}}>
+                    <strong>Service Learning:</strong> {trip.service_learning}
+                  </p>
+                </div>
+              )}
+
+              {activeTab === 'educational' && (
+                <div className="tab-content active">
+                  <div className="edu-grid">
+                    <div className="edu-card"><h4>SDG Focus</h4><p>SDG {trip.sdg_number}: {trip.sdg_name}</p></div>
+                    <div className="edu-card"><h4>Learner Profile</h4><p>{trip.learner_profile}</p></div>
+                    <div className="edu-card"><h4>Core Values</h4><p>{trip.core_values}</p></div>
+                    <div className="edu-card"><h4>Success Skills</h4><p>{trip.success_skills}</p></div>
+                  </div>
+                  <div className="edu-card" style={{marginTop: '1rem'}}>
+                    <h4>Outdoor Skills</h4><p style={{fontSize: '1rem'}}>{trip.outdoor_skills}</p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'packing' && (
+                <div className="tab-content active">
+                  {trip.trip_type === 'Day Trip' ? (
+                    <div className="packing-section">
+                      <h4>Small Backpack</h4>
+                      <div className="packing-items">
+                        <span className="packing-item">Water bottle</span>
+                        <span className="packing-item">Snacks</span>
+                        <span className="packing-item">Sunscreen</span>
+                        <span className="packing-item">Hat</span>
+                        <span className="packing-item">Light jacket</span>
+                        <span className="packing-item">Rain gear</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="packing-section">
+                        <h4>Main Backpack (50-60L)</h4>
+                        <div className="packing-items">
+                          <span className="packing-item">Sleeping bag</span>
+                          <span className="packing-item">Sleeping mat</span>
+                          <span className="packing-item">Clothes for {trip.duration_days} days</span>
+                          <span className="packing-item">Hiking shoes</span>
+                          <span className="packing-item">Toiletries</span>
+                          <span className="packing-item">Quick dry towel</span>
+                        </div>
+                      </div>
+                      <div className="packing-section">
+                        <h4>Daypack (20-25L)</h4>
+                        <div className="packing-items">
+                          <span className="packing-item">Water bottle (1L)</span>
+                          <span className="packing-item">Sunscreen</span>
+                          <span className="packing-item">Rain jacket</span>
+                          <span className="packing-item">Headlamp</span>
+                          <span className="packing-item">Snacks</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'faqs' && (
+                <div className="tab-content active">
+                  {faqs.slice(0, 5).map((faq, idx) => <FAQItem key={idx} faq={faq} />)}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function FAQItem({ faq }) {
+      const [isOpen, setIsOpen] = React.useState(false);
+      return (
+        <div className={`faq-item ${isOpen ? 'open' : ''}`}>
+          <div className="faq-question" onClick={() => setIsOpen(!isOpen)}>
+            <span>{faq.question || faq.q}</span>
+            <span style={{transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s'}}>{Icons.chevron}</span>
+          </div>
+          <div className="faq-answer">{faq.answer || faq.a}</div>
+        </div>
+      );
+    }
+
+    function Loading() {
+      return (
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <p>Cargando datos de CWW...</p>
+        </div>
+      );
+    }
+
+    // ========== MAIN APP ==========
+    function App() {
+      const [trips, setTrips] = React.useState([]);
+      const [faqs, setFaqs] = React.useState([]);
+      const [loading, setLoading] = React.useState(true);
+      const [isLive, setIsLive] = React.useState(false);
+      const [lastUpdate, setLastUpdate] = React.useState('');
+      const [activeFilter, setActiveFilter] = React.useState('All');
+      const [searchTerm, setSearchTerm] = React.useState('');
+      const [selectedTrip, setSelectedTrip] = React.useState(null);
+
+      React.useEffect(() => {
+        async function loadData() {
+          setLoading(true);
+
+          if (CONFIG.USE_LIVE_DATA && CONFIG.SHEETS.trips !== 'YOUR_TRIPS_MASTER_CSV_URL_HERE') {
+            try {
+              const [tripsData, faqsData] = await Promise.all([
+                fetchSheetData(CONFIG.SHEETS.trips),
+                CONFIG.SHEETS.faqs !== 'YOUR_FAQS_CSV_URL_HERE'
+                  ? fetchSheetData(CONFIG.SHEETS.faqs)
+                  : Promise.resolve(FALLBACK_FAQS)
+              ]);
+
+              setTrips(tripsData);
+              setFaqs(faqsData);
+              setIsLive(true);
+              setLastUpdate(new Date().toLocaleTimeString());
+            } catch (error) {
+              console.error('Error fetching live data:', error);
+              setTrips(FALLBACK_TRIPS);
+              setFaqs(FALLBACK_FAQS);
+              setIsLive(false);
+            }
+          } else {
+            setTrips(FALLBACK_TRIPS);
+            setFaqs(FALLBACK_FAQS);
+            setIsLive(false);
+          }
+
+          setLoading(false);
+        }
+
+        loadData();
+
+        if (CONFIG.REFRESH_INTERVAL > 0) {
+          const interval = setInterval(loadData, CONFIG.REFRESH_INTERVAL * 60 * 1000);
+          return () => clearInterval(interval);
+        }
+      }, []);
+
+      const filteredTrips = trips.filter(trip => {
+        const matchesFilter = activeFilter === 'All' || trip.division === activeFilter;
+        const matchesSearch = searchTerm === '' ||
+          (trip.trip_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (trip.grade_level || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (trip.trip_theme || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (trip.location_primary || '').toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesFilter && matchesSearch;
+      });
+
+      const filteredFaqs = faqs.filter(faq =>
+        searchTerm !== '' && (
+          ((faq.question || faq.q) || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          ((faq.answer || faq.a) || '').toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+
+      if (loading) return <><Header /><Loading /></>;
+
+      return (
+        <>
+          <Header />
+          <ConfigBanner isLive={isLive} lastUpdate={lastUpdate} />
+          <Filters activeFilter={activeFilter} onFilterChange={setActiveFilter} searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+
+          <main className="main">
+            <h2 className="section-title">CWW Trips 2025-2026</h2>
+
+            {filteredTrips.length > 0 ? (
+              <div className="trips-grid">
+                {filteredTrips.map(trip => (
+                  <TripCard key={trip.trip_id} trip={trip} onClick={setSelectedTrip} />
+                ))}
+              </div>
+            ) : (
+              <div className="error-state"><h3>No trips found</h3><p>Try adjusting your search or filter.</p></div>
+            )}
+
+            {filteredFaqs.length > 0 && (
+              <>
+                <h2 className="section-title">Related FAQs</h2>
+                {filteredFaqs.map((faq, idx) => <FAQItem key={idx} faq={faq} />)}
+              </>
+            )}
+          </main>
+
+          {selectedTrip && <Modal trip={selectedTrip} faqs={faqs} onClose={() => setSelectedTrip(null)} />}
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

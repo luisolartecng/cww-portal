@@ -254,6 +254,252 @@
 
     .data-status { font-size: 0.8rem; color: var(--text-light); text-align: center; padding: 0.5rem; }
 
+    /* ========== CHATBOT STYLES ========== */
+    .chatbot-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--forest-dark), var(--forest-mid));
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--shadow-strong);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .chatbot-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px var(--shadow-strong);
+    }
+
+    .chatbot-toggle svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--white);
+    }
+
+    .chatbot-window {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      width: 380px;
+      max-width: calc(100vw - 48px);
+      height: 500px;
+      max-height: calc(100vh - 140px);
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: 0 10px 50px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .chatbot-window.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .chatbot-header {
+      background: linear-gradient(135deg, var(--forest-dark), var(--forest-mid));
+      color: var(--white);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .chatbot-avatar {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .chatbot-title {
+      flex: 1;
+    }
+
+    .chatbot-title h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.1rem;
+    }
+
+    .chatbot-title span {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .chatbot-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: var(--white);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .chatbot-close:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .chat-message {
+      max-width: 85%;
+      padding: 0.75rem 1rem;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      animation: messageIn 0.3s ease;
+    }
+
+    @keyframes messageIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-message.bot {
+      background: var(--cream);
+      color: var(--text-dark);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-message.user {
+      background: linear-gradient(135deg, var(--forest-mid), var(--forest-light));
+      color: var(--white);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-message.bot strong {
+      color: var(--forest-dark);
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-top: 1px solid var(--cream);
+    }
+
+    .chat-suggestion {
+      background: var(--mint);
+      color: var(--forest-dark);
+      border: none;
+      padding: 0.4rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
+    .chat-suggestion:hover {
+      background: var(--sage);
+    }
+
+    .chatbot-input {
+      display: flex;
+      padding: 0.75rem;
+      border-top: 1px solid var(--cream);
+      gap: 0.5rem;
+    }
+
+    .chatbot-input input {
+      flex: 1;
+      border: 2px solid var(--mint);
+      border-radius: 50px;
+      padding: 0.6rem 1rem;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .chatbot-input input:focus {
+      border-color: var(--forest-light);
+    }
+
+    .chatbot-input button {
+      background: linear-gradient(135deg, var(--forest-mid), var(--forest-light));
+      border: none;
+      color: var(--white);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .chatbot-input button:hover {
+      transform: scale(1.05);
+    }
+
+    .chatbot-input button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 0.75rem 1rem;
+      background: var(--cream);
+      border-radius: 16px;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: var(--forest-light);
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
     @media (max-width: 768px) {
       .filters { padding: 1rem; }
       .filter-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
@@ -264,6 +510,21 @@
       .modal-header { padding: 1.5rem; }
       .modal-title { font-size: 1.5rem; }
       .modal-body { padding: 1.25rem; }
+
+      .chatbot-window {
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 70vh;
+        border-radius: 20px 20px 0 0;
+      }
+
+      .chatbot-toggle {
+        bottom: 16px;
+        right: 16px;
+      }
     }
   </style>
 </head>
@@ -321,7 +582,12 @@
       { category: 'General', question: 'Which grades participate?', answer: 'All grades from Kinder 4 through 11th grade participate. K4-2nd have day trips, 3rd grade and up have overnight experiences.' },
       { category: 'Safety', question: 'Who supervises the students?', answer: 'All trips are led by CNG staff members accompanied by pre-approved Outdoor Education Companies (OEC). All OEC staff have valid CPR and First Aid certifications.' },
       { category: 'Communication', question: 'Can my child bring a cell phone?', answer: 'No. Students are not allowed to bring cell phones. This allows for full immersion in the experience.' },
-      { category: 'Packing', question: 'What size backpack is needed?', answer: 'Day trips: small backpack. 3rd-5th: 40-50L + 20L daypack. 6th-10th: 50L + 20L. 11th: 60L + 25L daypack.' }
+      { category: 'Packing', question: 'What size backpack is needed?', answer: 'Day trips: small backpack. 3rd-5th: 40-50L + 20L daypack. 6th-10th: 50L + 20L. 11th: 60L + 25L daypack.' },
+      { category: 'General', question: 'Qué es el programa CWW?', answer: 'CWW (Classroom Without Walls) es un viaje que los estudiantes hacen por Colombia aplicando el aprendizaje del aula al mundo real, enfocado en los 17 Objetivos de Desarrollo Sostenible de la ONU.' },
+      { category: 'General', question: 'Qué grados participan?', answer: 'Todos los grados desde Kinder 4 hasta 11° grado participan. K4-2° tienen pasadías, de 3° en adelante tienen experiencias con noche.' },
+      { category: 'Safety', question: 'Quién supervisa a los estudiantes?', answer: 'Todos los viajes son liderados por personal del CNG acompañados por Compañías de Educación al Aire Libre (OEC) pre-aprobadas. Todo el personal OEC tiene certificaciones válidas de CPR y Primeros Auxilios.' },
+      { category: 'Communication', question: 'Mi hijo puede llevar celular?', answer: 'No. Los estudiantes no pueden llevar celulares. Esto permite una inmersión total en la experiencia.' },
+      { category: 'Packing', question: 'Qué tamaño de mochila se necesita?', answer: 'Pasadías: mochila pequeña. 3°-5°: 40-50L + daypack 20L. 6°-10°: 50L + 20L. 11°: 60L + daypack 25L.' }
     ];
 
     // ========== ICONS ==========
@@ -334,7 +600,9 @@
       arrow: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>,
       close: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
       chevron: <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg>,
-      refresh: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+      refresh: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>,
+      send: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>,
+      chat: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
     };
 
     // ========== DATA FETCHING ==========
@@ -347,6 +615,251 @@
           error: (error) => reject(error)
         });
       });
+    }
+
+    // ========== CHATBOT LOGIC ==========
+    function findAnswer(query, trips, faqs) {
+      const q = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+      // Keywords for grade detection
+      const gradeKeywords = {
+        'kinder 4': ['k4', 'kinder 4', 'kinder4', 'pre-kinder', 'prekinder'],
+        'kinder 5': ['k5', 'kinder 5', 'kinder5', 'transicion'],
+        '1st grade': ['1st', 'first', 'primero', '1ro', '1er', '1 grado'],
+        '2nd grade': ['2nd', 'second', 'segundo', '2do', '2 grado'],
+        '3rd grade': ['3rd', 'third', 'tercero', '3ro', '3er', '3 grado'],
+        '4th grade': ['4th', 'fourth', 'cuarto', '4to', '4 grado'],
+        '5th grade': ['5th', 'fifth', 'quinto', '5to', '5 grado'],
+        '6th grade': ['6th', 'sixth', 'sexto', '6to', '6 grado'],
+        '7th grade': ['7th', 'seventh', 'septimo', '7mo', '7 grado'],
+        '8th grade': ['8th', 'eighth', 'octavo', '8vo', '8 grado'],
+        '9th grade': ['9th', 'ninth', 'noveno', '9no', '9 grado'],
+        '10th grade': ['10th', 'tenth', 'decimo', '10mo', '10 grado'],
+        '11th grade': ['11th', 'eleventh', 'once', '11vo', '11 grado', 'undecimo']
+      };
+
+      // Check if asking about a specific grade
+      let foundGrade = null;
+      for (const [grade, keywords] of Object.entries(gradeKeywords)) {
+        if (keywords.some(kw => q.includes(kw))) {
+          foundGrade = grade;
+          break;
+        }
+      }
+
+      // If asking about a specific grade's trip
+      if (foundGrade) {
+        const trip = trips.find(t =>
+          (t.grade_level || '').toLowerCase() === foundGrade.toLowerCase()
+        );
+
+        if (trip) {
+          // Check what they're asking about
+          if (q.includes('donde') || q.includes('where') || q.includes('destino') || q.includes('location') || q.includes('lugar')) {
+            return `El viaje de **${trip.grade_level}** es a **${trip.location_primary}**.`;
+          }
+          if (q.includes('dias') || q.includes('days') || q.includes('duracion') || q.includes('duration') || q.includes('cuanto dura') || q.includes('how long')) {
+            return `El viaje de **${trip.grade_level}** dura **${trip.duration_days} día(s)** y **${trip.duration_nights || 0} noche(s)**.`;
+          }
+          if (q.includes('tema') || q.includes('theme') || q.includes('tematica')) {
+            return `El tema del viaje de **${trip.grade_level}** es: **"${trip.trip_theme}"**.`;
+          }
+          if (q.includes('sdg') || q.includes('ods') || q.includes('objetivo') || q.includes('sustainable')) {
+            return `El viaje de **${trip.grade_level}** se enfoca en el **ODS ${trip.sdg_number}: ${trip.sdg_name}**.`;
+          }
+          if (q.includes('mochila') || q.includes('backpack') || q.includes('empacar') || q.includes('pack') || q.includes('llevar') || q.includes('bring')) {
+            if (trip.trip_type === 'Day Trip') {
+              return `Para el viaje de **${trip.grade_level}** (pasadía) necesitan: mochila pequeña con agua, snacks, protector solar, gorra y chaqueta ligera.`;
+            } else {
+              return `Para el viaje de **${trip.grade_level}** necesitan: mochila principal (50-60L) con sleeping bag, colchoneta, ropa para ${trip.duration_days} días, y daypack (20-25L) para actividades diarias.`;
+            }
+          }
+          // General info about the grade
+          return `**${trip.grade_level}** - ${trip.trip_name || trip.location_primary}\n\n` +
+                 `📍 **Destino:** ${trip.location_primary}\n` +
+                 `📅 **Duración:** ${trip.duration_days} día(s), ${trip.duration_nights || 0} noche(s)\n` +
+                 `🎯 **Tema:** "${trip.trip_theme}"\n` +
+                 `🌍 **ODS:** ${trip.sdg_number} - ${trip.sdg_name}\n` +
+                 `🏕️ **Tipo:** ${trip.trip_type}\n` +
+                 `👥 **Partner:** ${trip.oec_partner}`;
+        }
+      }
+
+      // Check FAQs
+      const faqKeywords = [
+        { keys: ['celular', 'telefono', 'phone', 'cell'], field: 'question', includes: ['phone', 'celular', 'telefono'] },
+        { keys: ['mochila', 'backpack', 'maleta', 'equipaje'], field: 'question', includes: ['backpack', 'mochila', 'pack'] },
+        { keys: ['seguridad', 'safety', 'supervisa', 'supervise', 'adulto', 'adult'], field: 'question', includes: ['supervise', 'safety', 'seguridad'] },
+        { keys: ['que es cww', 'what is cww', 'programa'], field: 'question', includes: ['what is', 'que es', 'program'] },
+        { keys: ['grados', 'grades', 'participan', 'participate', 'edades', 'ages'], field: 'question', includes: ['grade', 'grado', 'participate'] }
+      ];
+
+      for (const faqCheck of faqKeywords) {
+        if (faqCheck.keys.some(k => q.includes(k))) {
+          const matchedFaq = faqs.find(f =>
+            faqCheck.includes.some(inc =>
+              ((f.question || f.q) || '').toLowerCase().includes(inc)
+            )
+          );
+          if (matchedFaq) {
+            return matchedFaq.answer || matchedFaq.a;
+          }
+        }
+      }
+
+      // Search in FAQs by similarity
+      for (const faq of faqs) {
+        const faqQ = ((faq.question || faq.q) || '').toLowerCase();
+        const words = q.split(' ').filter(w => w.length > 3);
+        const matches = words.filter(w => faqQ.includes(w));
+        if (matches.length >= 2 || (matches.length === 1 && words.length <= 2)) {
+          return faq.answer || faq.a;
+        }
+      }
+
+      // General trip questions
+      if (q.includes('viaje') || q.includes('trip') || q.includes('todos') || q.includes('all') || q.includes('lista') || q.includes('list')) {
+        const tripList = trips.map(t => `• **${t.grade_level}**: ${t.trip_name || t.location_primary}`).join('\n');
+        return `Estos son todos los viajes CWW 2025-2026:\n\n${tripList}`;
+      }
+
+      if (q.includes('hola') || q.includes('hello') || q.includes('hi') || q.includes('buenos')) {
+        return '¡Hola! 👋 Soy el asistente de CWW. Puedo ayudarte con información sobre los viajes, qué empacar, destinos y más. ¿Qué te gustaría saber?';
+      }
+
+      if (q.includes('gracias') || q.includes('thanks') || q.includes('thank you')) {
+        return '¡Con gusto! Si tienes más preguntas sobre CWW, aquí estoy para ayudarte. 🌿';
+      }
+
+      // No match found
+      return 'Lo siento, no tengo información sobre eso en mi base de datos. Puedo ayudarte con:\n\n' +
+             '• Información de viajes por grado\n' +
+             '• Destinos y duración\n' +
+             '• Qué empacar\n' +
+             '• Preguntas frecuentes (FAQs)\n\n' +
+             '¿Hay algo específico que te gustaría saber?';
+    }
+
+    // ========== CHATBOT COMPONENT ==========
+    function Chatbot({ trips, faqs }) {
+      const [isOpen, setIsOpen] = React.useState(false);
+      const [messages, setMessages] = React.useState([
+        { type: 'bot', text: '¡Hola! 👋 Soy el asistente de CWW. Pregúntame sobre los viajes, destinos, qué empacar o cualquier duda sobre el programa.' }
+      ]);
+      const [input, setInput] = React.useState('');
+      const [isTyping, setIsTyping] = React.useState(false);
+      const messagesEndRef = React.useRef(null);
+
+      const suggestions = [
+        '¿Qué viaje tiene 6to grado?',
+        '¿Cuántos días dura 9no?',
+        '¿Pueden llevar celular?',
+        'Lista de viajes'
+      ];
+
+      const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      };
+
+      React.useEffect(() => {
+        scrollToBottom();
+      }, [messages]);
+
+      const handleSend = (text = input) => {
+        if (!text.trim()) return;
+
+        // Add user message
+        setMessages(prev => [...prev, { type: 'user', text: text.trim() }]);
+        setInput('');
+        setIsTyping(true);
+
+        // Simulate typing delay
+        setTimeout(() => {
+          const answer = findAnswer(text, trips, faqs);
+          setMessages(prev => [...prev, { type: 'bot', text: answer }]);
+          setIsTyping(false);
+        }, 500 + Math.random() * 500);
+      };
+
+      const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      };
+
+      return (
+        <>
+          {/* Toggle Button */}
+          <button
+            className="chatbot-toggle"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Abrir chat"
+          >
+            {isOpen ? Icons.close : Icons.chat}
+          </button>
+
+          {/* Chat Window */}
+          <div className={`chatbot-window ${isOpen ? 'open' : ''}`}>
+            <div className="chatbot-header">
+              <div className="chatbot-avatar">🌿</div>
+              <div className="chatbot-title">
+                <h3>CWW Assistant</h3>
+                <span>Respondo con información del programa</span>
+              </div>
+              <button className="chatbot-close" onClick={() => setIsOpen(false)}>
+                {Icons.close}
+              </button>
+            </div>
+
+            <div className="chatbot-messages">
+              {messages.map((msg, idx) => (
+                <div key={idx} className={`chat-message ${msg.type}`}>
+                  {msg.text.split('\n').map((line, i) => (
+                    <span key={i}>
+                      {line.split('**').map((part, j) =>
+                        j % 2 === 1 ? <strong key={j}>{part}</strong> : part
+                      )}
+                      {i < msg.text.split('\n').length - 1 && <br />}
+                    </span>
+                  ))}
+                </div>
+              ))}
+              {isTyping && (
+                <div className="typing-indicator">
+                  <span></span><span></span><span></span>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className="chat-suggestions">
+              {suggestions.map((sug, idx) => (
+                <button
+                  key={idx}
+                  className="chat-suggestion"
+                  onClick={() => handleSend(sug)}
+                >
+                  {sug}
+                </button>
+              ))}
+            </div>
+
+            <div className="chatbot-input">
+              <input
+                type="text"
+                placeholder="Escribe tu pregunta..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <button onClick={() => handleSend()} disabled={!input.trim()}>
+                {Icons.send}
+              </button>
+            </div>
+          </div>
+        </>
+      );
     }
 
     // ========== COMPONENTS ==========
@@ -652,6 +1165,9 @@
           </main>
 
           {selectedTrip && <Modal trip={selectedTrip} faqs={faqs} onClose={() => setSelectedTrip(null)} />}
+
+          {/* Chatbot Widget */}
+          <Chatbot trips={trips} faqs={faqs} />
         </>
       );
     }

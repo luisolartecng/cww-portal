@@ -828,11 +828,21 @@
         }
       }, []);
 
-      const filters = ['All', 'Early Childhood', 'Elementary', 'Middle School', 'High School'];
+      const filters = ['All', 'Primary School', 'Elementary School', 'Middle School', 'High School'];
+
+      // Mapeo de botones a valores en los datos
+      const filterMap = {
+        'All': 'All',
+        'Primary School': 'Early Childhood',
+        'Elementary School': 'Elementary',
+        'Middle School': 'Middle School',
+        'High School': 'High School'
+      };
 
       const filteredTrips = allData.trips.filter(trip => {
         const division = trip.division || trip.Division || '';
-        const matchesFilter = activeFilter === 'All' || division === activeFilter;
+        const mappedFilter = filterMap[activeFilter] || activeFilter;
+        const matchesFilter = activeFilter === 'All' || division === mappedFilter;
         const searchLower = searchTerm.toLowerCase();
         const matchesSearch = searchTerm === '' ||
           (trip.trip_name || '').toLowerCase().includes(searchLower) ||

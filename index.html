@@ -346,7 +346,8 @@
       align-items: center;
       gap: 0.75rem;
     }
-    .chatbot-avatar { width: 44px; height: 44px; background: rgba(74, 222, 128, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .chatbot-avatar { width: 44px; height: 44px; background: var(--navy-dark); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .chatbot-avatar svg { width: 40px; height: 40px; }
     .chatbot-title { flex: 1; }
     .chatbot-title h3 { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--green-bright); }
     .chatbot-title .ai-tag { background: var(--green-bright); color: var(--navy-dark); font-size: 0.65rem; padding: 2px 6px; border-radius: 8px; }
@@ -560,7 +561,20 @@
           </button>
           <div className={`chatbot-window ${isOpen ? 'open' : ''}`}>
             <div className="chatbot-header">
-              <div className="chatbot-avatar">🌿</div>
+              <div className="chatbot-avatar">
+                <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="50" height="50" fill="#0a1628"/>
+                  <g fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 35 L18 20 L25 27 L32 20 L40 35" />
+                    <path d="M18 20 L18 12" />
+                    <path d="M18 12 L15 15" />
+                    <path d="M18 12 L21 15" />
+                    <path d="M32 20 L32 12" />
+                    <path d="M32 12 L29 15" />
+                    <path d="M32 12 L35 15" />
+                  </g>
+                </svg>
+              </div>
               <div className="chatbot-title">
                 <h3>CWW Assistant <span className="ai-tag">GPT</span></h3>
                 <span>Con acceso a itinerarios y más</span>

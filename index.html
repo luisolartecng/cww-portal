@@ -451,9 +451,19 @@
       return item.trip_id || item.Trip_ID || item.TripID || item.id || '';
     }
 
+    // Helper to get field value with multiple possible column names
+    function getField(obj, ...keys) {
+      for (const key of keys) {
+        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+          return obj[key];
+        }
+      }
+      return '';
+    }
+
     // Chat Storage Key
     const CHAT_STORAGE_KEY = 'cww_chat_messages';
-    const initialBotMessage = { type: 'bot', text: '¡Hola! 👋 Soy el asistente de CWW con IA. Pregúntame sobre viajes, itinerarios día a día, qué empacar, o cualquier duda del programa.' };
+    const initialBotMessage = { type: 'bot', text: 'Hello! 👋 I\'m the CWW AI Assistant. Ask me about trips, day-by-day itineraries, packing lists, or any program questions.\n\n¡Hola! También puedo ayudarte en español. 🌿' };
 
     // Chatbot Component
     function Chatbot({ allData }) {
@@ -477,7 +487,7 @@
       const messagesEndRef = React.useRef(null);
       const abortControllerRef = React.useRef(null);
 
-      const suggestions = ['Itinerario de 6to grado', '¿Qué empacar para 9no?', 'Compara viajes de 7mo y 8vo', '¿Cuál es el viaje más largo?'];
+      const suggestions = ['6th grade itinerary', 'Packing list for 9th', 'Compare 7th and 8th trips', 'Which trip is longest?'];
 
       // Save messages to sessionStorage whenever they change
       React.useEffect(() => {
@@ -595,14 +605,26 @@
       if (!trip) return null;
 
       const tripId = getTripId(trip);
-      const itineraryItems = (allData.itineraries || []).filter(item => getTripId(item) === tripId);
-      const packingItems = (allData.packing || []).filter(item => getTripId(item) === tripId);
-      const logisticsItems = (allData.logistics || []).filter(item => getTripId(item) === tripId);
-      const educationalItems = (allData.educational || []).filter(item => getTripId(item) === tripId);
+      const gradeLevel = getField(trip, 'grade_level', 'Grade', 'grade');
+
+      // Filter related data by trip_id OR grade_level
+      const filterByTripOrGrade = (items) => {
+        return (items || []).filter(item => {
+          const itemTripId = getTripId(item);
+          const itemGrade = getField(item, 'grade_level', 'Grade', 'grade');
+          return itemTripId === tripId || (tripId && itemTripId === tripId) || (gradeLevel && itemGrade === gradeLevel);
+        });
+      };
+
+      const itineraryItems = filterByTripOrGrade(allData.itineraries);
+      const packingItems = filterByTripOrGrade(allData.packing);
+      const logisticsItems = filterByTripOrGrade(allData.logistics);
+      const educationalItems = filterByTripOrGrade(allData.educational);
+      const resourceItems = filterByTripOrGrade(allData.resources);
 
       // Group itinerary by day
       const itineraryByDay = itineraryItems.reduce((acc, item) => {
-        const day = item.day_number || item.Day || item.day || '1';
+        const day = getField(item, 'day_number', 'Day', 'day', 'Day_Number') || '1';
         if (!acc[day]) acc[day] = [];
         acc[day].push(item);
         return acc;
@@ -610,33 +632,58 @@
 
       // Group packing by category
       const packingByCategory = packingItems.reduce((acc, item) => {
-        const cat = item.category || item.Category || 'General';
+        const cat = getField(item, 'category', 'Category') || 'General';
         if (!acc[cat]) acc[cat] = [];
         acc[cat].push(item);
         return acc;
       }, {});
 
+      // Group resources by type
+      const resourcesByType = resourceItems.reduce((acc, item) => {
+        const type = getField(item, 'resource_type', 'Type', 'type') || 'General';
+        if (!acc[type]) acc[type] = [];
+        acc[type].push(item);
+        return acc;
+      }, {});
+
       const tabs = [
-        { id: 'overview', label: '📋 Resumen' },
-        { id: 'itinerary', label: '📅 Itinerario' },
-        { id: 'packing', label: '🎒 Empaque' },
-        { id: 'educational', label: '📚 Educativo' },
-        { id: 'logistics', label: '🚌 Logística' },
+        { id: 'overview', label: '📋 Overview' },
+        { id: 'itinerary', label: '📅 Itinerary' },
+        { id: 'packing', label: '🎒 Packing' },
+        { id: 'educational', label: '📚 Educational' },
+        { id: 'resources', label: '📎 Resources' },
+        { id: 'logistics', label: '🚌 Logistics' },
         { id: 'faqs', label: '❓ FAQs' }
       ];
+
+      // Get trip fields with fallbacks
+      const tripName = getField(trip, 'trip_name', 'Trip_Name', 'Trip', 'Name', 'location_primary');
+      const tripTheme = getField(trip, 'trip_theme', 'Theme', 'theme');
+      const tripType = getField(trip, 'trip_type', 'Trip_Type', 'Type');
+      const durationDays = getField(trip, 'duration_days', 'Duration_Days', 'Days', 'days');
+      const durationNights = getField(trip, 'duration_nights', 'Duration_Nights', 'Nights', 'nights');
+      const location = getField(trip, 'location_primary', 'Location', 'location', 'Destination');
+      const partner = getField(trip, 'oec_partner', 'OEC_Partner', 'Partner', 'partner');
+      const sdgNumber = getField(trip, 'sdg_number', 'SDG_Number', 'SDG', 'sdg');
+      const sdgName = getField(trip, 'sdg_name', 'SDG_Name', 'SDG_Title');
+      const serviceLearning = getField(trip, 'service_learning', 'Service_Learning', 'service');
+      const learnerProfile = getField(trip, 'learner_profile', 'Learner_Profile', 'Profile');
+      const coreValues = getField(trip, 'core_values', 'Core_Values', 'Values');
+      const successSkills = getField(trip, 'success_skills', 'Success_Skills', 'Skills');
+      const outdoorSkills = getField(trip, 'outdoor_skills', 'Outdoor_Skills');
 
       return (
         <div className="modal-overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
           <div className="modal">
             <div className="modal-header">
               <button className="modal-close" onClick={onClose}>{Icons.close}</button>
-              <div className="modal-grade">{trip.grade_level || trip.Grade}</div>
-              <h2 className="modal-title">{trip.trip_name || trip.location_primary || trip.Trip}</h2>
-              <p style={{opacity: 0.9, fontStyle: 'italic'}}>"{trip.trip_theme || trip.Theme}"</p>
+              <div className="modal-grade">{gradeLevel}</div>
+              <h2 className="modal-title">{tripName}</h2>
+              {tripTheme && <p style={{opacity: 0.9, fontStyle: 'italic'}}>"{tripTheme}"</p>}
               <div className="modal-meta">
-                <span>{Icons.calendar} {trip.duration_days || trip.Days} días / {trip.duration_nights || trip.Nights || 0} noches</span>
-                <span>{Icons.location} {trip.location_primary || trip.Location}</span>
-                <span>{Icons.users} {trip.oec_partner || trip.Partner}</span>
+                <span>{Icons.calendar} {durationDays} days / {durationNights || 0} nights</span>
+                <span>{Icons.location} {location}</span>
+                {partner && <span>{Icons.users} {partner}</span>}
               </div>
             </div>
             <div className="modal-body">
@@ -650,13 +697,13 @@
               {activeTab === 'overview' && (
                 <div className="tab-content active">
                   <p style={{fontSize: '1.05rem', lineHeight: 1.8, marginBottom: '1.5rem'}}>
-                    El viaje de <strong>{trip.grade_level || trip.Grade}</strong> lleva a los estudiantes a <strong>{trip.location_primary || trip.Location}</strong> para una experiencia inmersiva de {(trip.trip_type || trip.Type || '').toLowerCase()} enfocada en "{trip.trip_theme || trip.Theme}".
+                    The <strong>{gradeLevel}</strong> trip takes students to <strong>{location}</strong> for an immersive {tripType?.toLowerCase()} experience focused on "{tripTheme}".
                   </p>
                   <div className="edu-grid">
-                    <div className="edu-card"><h4>🌍 ODS</h4><p>ODS {trip.sdg_number}: {trip.sdg_name}</p></div>
-                    <div className="edu-card"><h4>🎯 Tipo</h4><p>{trip.trip_type || trip.Type}</p></div>
-                    <div className="edu-card"><h4>👥 Partner</h4><p>{trip.oec_partner || trip.Partner}</p></div>
-                    <div className="edu-card"><h4>🌱 Service Learning</h4><p>{trip.service_learning || 'Aprendizaje experiencial'}</p></div>
+                    {(sdgNumber || sdgName) && <div className="edu-card"><h4>🌍 SDG Focus</h4><p>{sdgNumber ? `SDG ${sdgNumber}` : ''}{sdgName ? `: ${sdgName}` : ''}</p></div>}
+                    {tripType && <div className="edu-card"><h4>🎯 Type</h4><p>{tripType}</p></div>}
+                    {partner && <div className="edu-card"><h4>👥 Partner</h4><p>{partner}</p></div>}
+                    {serviceLearning && <div className="edu-card"><h4>🌱 Service Learning</h4><p>{serviceLearning}</p></div>}
                   </div>
                 </div>
               )}
@@ -669,14 +716,14 @@
                       {Object.entries(itineraryByDay).sort(([a], [b]) => Number(a) - Number(b)).map(([day, activities]) => (
                         <div key={day} className="itinerary-day">
                           <div className="day-header">
-                            <span className="day-number">Día {day}</span>
-                            <span className="day-title">{activities[0]?.day_title || activities[0]?.title || ''}</span>
+                            <span className="day-number">Day {day}</span>
+                            <span className="day-title">{getField(activities[0], 'day_title', 'Day_Title', 'Title', 'title')}</span>
                           </div>
                           <div className="day-activities">
                             {activities.map((act, idx) => (
                               <div key={idx} className="activity-item">
-                                <span className="activity-time">{act.time_start || act.Time || act.time || ''}</span>
-                                <span className="activity-desc">{act.activity_description || act.Activity || act.description || act.activity}</span>
+                                <span className="activity-time">{getField(act, 'time_start', 'Time_Start', 'Time', 'time', 'Start_Time')}</span>
+                                <span className="activity-desc">{getField(act, 'activity_description', 'Activity_Description', 'Activity', 'Description', 'activity', 'description')}</span>
                               </div>
                             ))}
                           </div>
@@ -684,7 +731,7 @@
                       ))}
                     </div>
                   ) : (
-                    <div className="no-data">No hay itinerario detallado disponible para este viaje.</div>
+                    <div className="no-data">No detailed itinerary available for this trip.</div>
                   )}
                 </div>
               )}
@@ -698,43 +745,17 @@
                         <div key={category} className="packing-category">
                           <h4>{Icons.backpack} {category}</h4>
                           <ul className="packing-items">
-                            {items.map((item, idx) => (
-                              <li key={idx}>{item.item_name || item.Item || item.item} {item.quantity ? `(${item.quantity})` : ''}</li>
-                            ))}
+                            {items.map((item, idx) => {
+                              const itemName = getField(item, 'item_name', 'Item_Name', 'Item', 'item', 'Name');
+                              const quantity = getField(item, 'quantity', 'Quantity', 'Qty');
+                              return <li key={idx}>{itemName} {quantity ? `(${quantity})` : ''}</li>;
+                            })}
                           </ul>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="packing-grid">
-                      <div className="packing-category">
-                        <h4>{Icons.backpack} Lista General</h4>
-                        <ul className="packing-items">
-                          {(trip.trip_type === 'Day Trip' || trip.Type === 'Day Trip') ? (
-                            <>
-                              <li>Mochila pequeña</li>
-                              <li>Botella de agua</li>
-                              <li>Snacks</li>
-                              <li>Protector solar</li>
-                              <li>Gorra o sombrero</li>
-                              <li>Chaqueta ligera</li>
-                              <li>Impermeable</li>
-                            </>
-                          ) : (
-                            <>
-                              <li>Mochila 50-60L</li>
-                              <li>Daypack 20-25L</li>
-                              <li>Sleeping bag</li>
-                              <li>Colchoneta</li>
-                              <li>Ropa para {trip.duration_days || 5} días</li>
-                              <li>Zapatos de hiking</li>
-                              <li>Linterna frontal</li>
-                              <li>Artículos de aseo</li>
-                            </>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
+                    <div className="no-data">No specific packing list available for this trip. Please check with the trip coordinator.</div>
                   )}
                 </div>
               )}
@@ -742,16 +763,67 @@
               {/* Educational Tab */}
               {activeTab === 'educational' && (
                 <div className="tab-content active">
-                  <div className="edu-grid">
-                    <div className="edu-card"><h4>🌍 ODS Focus</h4><p>ODS {trip.sdg_number}: {trip.sdg_name}</p></div>
-                    <div className="edu-card"><h4>👤 Learner Profile</h4><p>{trip.learner_profile || 'Explorador'}</p></div>
-                    <div className="edu-card"><h4>💚 Core Values</h4><p>{trip.core_values || 'Responsabilidad, Respeto'}</p></div>
-                    <div className="edu-card"><h4>🎯 Success Skills</h4><p>{trip.success_skills || 'Colaboración'}</p></div>
-                  </div>
-                  <div className="edu-card" style={{marginTop: '1rem'}}>
-                    <h4>🏕️ Outdoor Skills</h4>
-                    <p style={{fontSize: '1rem'}}>{trip.outdoor_skills || 'Habilidades al aire libre adaptadas al nivel'}</p>
-                  </div>
+                  {educationalItems.length > 0 ? (
+                    <>
+                      {educationalItems.map((edu, idx) => (
+                        <div key={idx} className="edu-grid" style={{marginBottom: '1rem'}}>
+                          {getField(edu, 'sdg_number', 'SDG_Number', 'SDG') && <div className="edu-card"><h4>🌍 SDG Focus</h4><p>SDG {getField(edu, 'sdg_number', 'SDG_Number', 'SDG')}: {getField(edu, 'sdg_name', 'SDG_Name', 'SDG_Title')}</p></div>}
+                          {getField(edu, 'learner_profile', 'Learner_Profile', 'Profile') && <div className="edu-card"><h4>👤 Learner Profile</h4><p>{getField(edu, 'learner_profile', 'Learner_Profile', 'Profile')}</p></div>}
+                          {getField(edu, 'core_values', 'Core_Values', 'Values') && <div className="edu-card"><h4>💚 Core Values</h4><p>{getField(edu, 'core_values', 'Core_Values', 'Values')}</p></div>}
+                          {getField(edu, 'success_skills', 'Success_Skills', 'Skills') && <div className="edu-card"><h4>🎯 Success Skills</h4><p>{getField(edu, 'success_skills', 'Success_Skills', 'Skills')}</p></div>}
+                          {getField(edu, 'outdoor_skills', 'Outdoor_Skills') && <div className="edu-card"><h4>🏕️ Outdoor Skills</h4><p>{getField(edu, 'outdoor_skills', 'Outdoor_Skills')}</p></div>}
+                          {getField(edu, 'learning_objectives', 'Learning_Objectives', 'Objectives') && <div className="edu-card"><h4>📝 Learning Objectives</h4><p>{getField(edu, 'learning_objectives', 'Learning_Objectives', 'Objectives')}</p></div>}
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="edu-grid">
+                      {(sdgNumber || sdgName) && <div className="edu-card"><h4>🌍 SDG Focus</h4><p>{sdgNumber ? `SDG ${sdgNumber}` : ''}{sdgName ? `: ${sdgName}` : ''}</p></div>}
+                      {learnerProfile && <div className="edu-card"><h4>👤 Learner Profile</h4><p>{learnerProfile}</p></div>}
+                      {coreValues && <div className="edu-card"><h4>💚 Core Values</h4><p>{coreValues}</p></div>}
+                      {successSkills && <div className="edu-card"><h4>🎯 Success Skills</h4><p>{successSkills}</p></div>}
+                      {outdoorSkills && <div className="edu-card"><h4>🏕️ Outdoor Skills</h4><p>{outdoorSkills}</p></div>}
+                      {!sdgNumber && !sdgName && !learnerProfile && !coreValues && !successSkills && !outdoorSkills && (
+                        <div className="no-data" style={{gridColumn: '1 / -1'}}>No educational framework data available for this trip.</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Resources Tab */}
+              {activeTab === 'resources' && (
+                <div className="tab-content active">
+                  {Object.keys(resourcesByType).length > 0 ? (
+                    <div className="packing-grid">
+                      {Object.entries(resourcesByType).map(([type, items]) => (
+                        <div key={type} className="packing-category">
+                          <h4>📎 {type}</h4>
+                          <ul className="packing-items" style={{listStyle: 'none'}}>
+                            {items.map((item, idx) => {
+                              const resourceName = getField(item, 'resource_name', 'Resource_Name', 'Name', 'name', 'Title', 'title');
+                              const resourceUrl = getField(item, 'resource_url', 'Resource_URL', 'URL', 'url', 'Link', 'link');
+                              const description = getField(item, 'description', 'Description');
+                              return (
+                                <li key={idx} style={{padding: '0.5rem 0', borderBottom: '1px solid var(--green-pale)'}}>
+                                  {resourceUrl ? (
+                                    <a href={resourceUrl} target="_blank" rel="noopener noreferrer" style={{color: 'var(--green-mid)', fontWeight: 500}}>
+                                      🔗 {resourceName}
+                                    </a>
+                                  ) : (
+                                    <span style={{fontWeight: 500}}>{resourceName}</span>
+                                  )}
+                                  {description && <p style={{fontSize: '0.85rem', color: 'var(--text-mid)', marginTop: '0.25rem'}}>{description}</p>}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="no-data">No resources available for this trip yet.</div>
+                  )}
                 </div>
               )}
 
@@ -760,24 +832,28 @@
                 <div className="tab-content active">
                   <div className="logistics-grid">
                     <div className="logistics-card">
-                      <h4>📍 Información General</h4>
-                      <div className="logistics-item"><span>Destino</span><strong>{trip.location_primary || trip.Location}</strong></div>
-                      <div className="logistics-item"><span>Duración</span><strong>{trip.duration_days} días / {trip.duration_nights || 0} noches</strong></div>
-                      <div className="logistics-item"><span>Tipo</span><strong>{trip.trip_type || trip.Type}</strong></div>
+                      <h4>📍 General Information</h4>
+                      {location && <div className="logistics-item"><span>Destination</span><strong>{location}</strong></div>}
+                      {durationDays && <div className="logistics-item"><span>Duration</span><strong>{durationDays} days / {durationNights || 0} nights</strong></div>}
+                      {tripType && <div className="logistics-item"><span>Type</span><strong>{tripType}</strong></div>}
                     </div>
                     <div className="logistics-card">
-                      <h4>🚌 Transporte</h4>
-                      <div className="logistics-item"><span>Partner</span><strong>{trip.oec_partner || trip.Partner}</strong></div>
-                      {logisticsItems.length > 0 && logisticsItems.map((log, idx) => (
-                        <div key={idx} className="logistics-item">
-                          <span>{log.item || log.Item}</span>
-                          <strong>{log.value || log.Value || log.details}</strong>
-                        </div>
-                      ))}
+                      <h4>🚌 Transportation & Partner</h4>
+                      {partner && <div className="logistics-item"><span>OEC Partner</span><strong>{partner}</strong></div>}
+                      {logisticsItems.length > 0 && logisticsItems.map((log, idx) => {
+                        const itemName = getField(log, 'item', 'Item', 'item_name', 'Name', 'name');
+                        const itemValue = getField(log, 'value', 'Value', 'details', 'Details', 'Description');
+                        return itemName && (
+                          <div key={idx} className="logistics-item">
+                            <span>{itemName}</span>
+                            <strong>{itemValue}</strong>
+                          </div>
+                        );
+                      })}
                     </div>
                     <div className="contact-card">
-                      <h4>📞 Contacto de Emergencia</h4>
-                      <p className="contact-info">CNG Emergency Line<br/>Coordinador CWW</p>
+                      <h4>📞 Emergency Contact</h4>
+                      <p className="contact-info">CNG Emergency Line<br/>CWW Coordinator</p>
                     </div>
                   </div>
                 </div>
@@ -786,9 +862,13 @@
               {/* FAQs Tab */}
               {activeTab === 'faqs' && (
                 <div className="tab-content active">
-                  {(allData.faqs || []).slice(0, 5).map((faq, idx) => (
-                    <FAQItem key={idx} faq={faq} />
-                  ))}
+                  {(allData.faqs || []).length > 0 ? (
+                    (allData.faqs || []).slice(0, 10).map((faq, idx) => (
+                      <FAQItem key={idx} faq={faq} />
+                    ))
+                  ) : (
+                    <div className="no-data">No FAQs available. Contact the CWW coordinator for questions.</div>
+                  )}
                 </div>
               )}
             </div>
@@ -799,37 +879,51 @@
 
     function FAQItem({ faq }) {
       const [isOpen, setIsOpen] = React.useState(false);
+      const question = getField(faq, 'question', 'Question', 'q', 'FAQ_Question');
+      const answer = getField(faq, 'answer', 'Answer', 'a', 'FAQ_Answer');
+      if (!question) return null;
       return (
         <div className={`faq-item ${isOpen ? 'open' : ''}`}>
           <div className="faq-question" onClick={() => setIsOpen(!isOpen)}>
-            <span>{faq.question || faq.Question || faq.q}</span>
+            <span>{question}</span>
             <span style={{transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s'}}>{Icons.chevron}</span>
           </div>
-          <div className="faq-answer">{faq.answer || faq.Answer || faq.a}</div>
+          <div className="faq-answer">{answer}</div>
         </div>
       );
     }
 
     function TripCard({ trip, onClick }) {
-      const isExpedition = (trip.trip_type || trip.Type || '').toLowerCase().includes('expedition');
+      const tripType = getField(trip, 'trip_type', 'Trip_Type', 'Type');
+      const gradeLevel = getField(trip, 'grade_level', 'Grade', 'grade');
+      const tripName = getField(trip, 'trip_name', 'Trip_Name', 'Trip', 'Name', 'location_primary');
+      const tripTheme = getField(trip, 'trip_theme', 'Theme', 'theme');
+      const durationDays = getField(trip, 'duration_days', 'Duration_Days', 'Days', 'days');
+      const location = getField(trip, 'location_primary', 'Location', 'location', 'Destination');
+      const partner = getField(trip, 'oec_partner', 'OEC_Partner', 'Partner', 'partner');
+      const sdgNumber = getField(trip, 'sdg_number', 'SDG_Number', 'SDG');
+      const sdgName = getField(trip, 'sdg_name', 'SDG_Name', 'SDG_Title');
+
+      const isExpedition = (tripType || '').toLowerCase().includes('expedition');
+
       return (
         <div className="trip-card" onClick={() => onClick(trip)}>
-          <span className={`card-badge ${isExpedition ? 'expedition' : ''}`}>{trip.trip_type || trip.Type}</span>
+          {tripType && <span className={`card-badge ${isExpedition ? 'expedition' : ''}`}>{tripType}</span>}
           <div className="card-header">
-            <div className="card-grade">{trip.grade_level || trip.Grade}</div>
-            <h3 className="card-title">{trip.trip_name || trip.location_primary || trip.Trip}</h3>
-            <p className="card-theme">"{trip.trip_theme || trip.Theme}"</p>
+            <div className="card-grade">{gradeLevel}</div>
+            <h3 className="card-title">{tripName}</h3>
+            {tripTheme && <p className="card-theme">"{tripTheme}"</p>}
           </div>
           <div className="card-body">
             <div className="card-info">
-              <span className="info-item"><span className="info-icon">{Icons.calendar}</span>{trip.duration_days || trip.Days} día{(trip.duration_days || trip.Days) > 1 ? 's' : ''}</span>
-              <span className="info-item"><span className="info-icon">{Icons.location}</span>{trip.location_primary || trip.Location}</span>
-              <span className="info-item"><span className="info-icon">{Icons.users}</span>{trip.oec_partner || trip.Partner}</span>
+              {durationDays && <span className="info-item"><span className="info-icon">{Icons.calendar}</span>{durationDays} day{Number(durationDays) > 1 ? 's' : ''}</span>}
+              {location && <span className="info-item"><span className="info-icon">{Icons.location}</span>{location}</span>}
+              {partner && <span className="info-item"><span className="info-icon">{Icons.users}</span>{partner}</span>}
             </div>
           </div>
           <div className="card-footer">
-            <span className="card-sdg"><span className="info-icon">{Icons.leaf}</span>ODS {trip.sdg_number}: {trip.sdg_name}</span>
-            <span className="view-details">Ver más {Icons.arrow}</span>
+            {(sdgNumber || sdgName) && <span className="card-sdg"><span className="info-icon">{Icons.leaf}</span>{sdgNumber ? `SDG ${sdgNumber}` : ''}{sdgName ? `: ${sdgName}` : ''}</span>}
+            <span className="view-details">View more {Icons.arrow}</span>
           </div>
         </div>
       );
@@ -944,7 +1038,7 @@
           </header>
           <div className="loading">
             <div className="loading-spinner"></div>
-            <p>Cargando datos de CWW...</p>
+            <p>Loading CWW data...</p>
           </div>
         </>
       );
@@ -961,23 +1055,23 @@
           </header>
 
           <div className="data-status">
-            {isRefreshing ? '🔄 Actualizando datos...' : '✅'} Datos en vivo desde Google Sheets • {allData.trips.length} viajes • {allData.itineraries.length} actividades • Última actualización: {lastUpdate}
+            {isRefreshing ? '🔄 Refreshing data...' : '✅'} Live data from Google Sheets • {allData.trips.length} trips • {allData.itineraries.length} activities • Last update: {lastUpdate}
           </div>
 
           <div className="filters">
             {filters.map(filter => (
               <button key={filter} className={`filter-btn ${activeFilter === filter ? 'active' : ''}`} onClick={() => setActiveFilter(filter)}>
-                {filter === 'All' ? 'Todos' : filter}
+                {filter}
               </button>
             ))}
             <div className="search-box">
               <span className="search-icon">{Icons.search}</span>
-              <input type="text" placeholder="Buscar viajes..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <input type="text" placeholder="Search trips..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
             </div>
           </div>
 
           <main className="main">
-            <h2 className="section-title">Viajes CWW 2025-2026</h2>
+            <h2 className="section-title">CWW Trips 2025-2026</h2>
             <div className="trips-grid">
               {filteredTrips.map((trip, idx) => (
                 <TripCard key={getTripId(trip) || idx} trip={trip} onClick={setSelectedTrip} />

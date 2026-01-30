@@ -880,35 +880,75 @@
                   <div className="logistics-grid">
                     {/* Trip-specific contacts */}
                     {contactItems.length > 0 && contactItems.map((contact, idx) => {
-                      const role = getField(contact, 'role', 'Role', 'position', 'Position', 'Title', 'title');
+                      const role = getField(contact, 'role', 'Role', 'position', 'Position');
                       const name = getField(contact, 'name', 'Name', 'contact_name', 'Contact_Name');
-                      const phone = getField(contact, 'phone', 'Phone', 'phone_number', 'Phone_Number', 'Telephone');
+                      const title = getField(contact, 'title', 'Title', 'job_title', 'Job_Title');
+                      const organization = getField(contact, 'organization', 'Organization', 'org', 'company', 'Company');
+                      const phonePrimary = getField(contact, 'phone_primary', 'Phone_Primary', 'phone', 'Phone', 'phone_number');
+                      const phoneSecondary = getField(contact, 'phone_secondary', 'Phone_Secondary', 'phone2', 'Phone2');
                       const email = getField(contact, 'email', 'Email', 'email_address', 'Email_Address');
-                      const notes = getField(contact, 'notes', 'Notes', 'description', 'Description');
+                      const whatsapp = getField(contact, 'whatsapp', 'Whatsapp', 'WhatsApp', 'whats_app');
+                      const availableHours = getField(contact, 'available_hours', 'Available_Hours', 'hours', 'Hours', 'availability');
+                      const responsibilities = getField(contact, 'responsibilities', 'Responsibilities', 'duties', 'Duties');
+                      const isEmergency = getField(contact, 'is_emergency_contact', 'Is_Emergency_Contact', 'emergency', 'Emergency');
                       return (
-                        <div key={idx} className="contact-card">
-                          <h4>{role || 'Contact'}</h4>
-                          {name && <p className="contact-info" style={{fontWeight: 600, marginBottom: '0.5rem'}}>{name}</p>}
-                          {phone && <p className="contact-info">📱 {phone}</p>}
-                          {email && <p className="contact-info">✉️ {email}</p>}
-                          {notes && <p className="contact-info" style={{marginTop: '0.5rem', opacity: 0.8, fontSize: '0.85rem'}}>{notes}</p>}
+                        <div key={idx} className="contact-card" style={{position: 'relative'}}>
+                          {(isEmergency === 'Yes' || isEmergency === 'TRUE' || isEmergency === true || isEmergency === '1') && (
+                            <span style={{position: 'absolute', top: '0.75rem', right: '0.75rem', background: '#ef4444', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600}}>🚨 EMERGENCY</span>
+                          )}
+                          <h4 style={{color: '#4ade80', marginBottom: '0.25rem'}}>{role || 'Contact'}</h4>
+                          {organization && <p style={{fontSize: '0.85rem', opacity: 0.7, marginBottom: '0.5rem'}}>{organization}</p>}
+                          {name && <p className="contact-info" style={{fontWeight: 600, fontSize: '1.1rem', marginBottom: '0.25rem'}}>{name}</p>}
+                          {title && <p className="contact-info" style={{opacity: 0.8, marginBottom: '0.75rem', fontStyle: 'italic'}}>{title}</p>}
+                          <div style={{borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.75rem', marginTop: '0.5rem'}}>
+                            {phonePrimary && <p className="contact-info">📱 {phonePrimary}</p>}
+                            {phoneSecondary && <p className="contact-info">📞 {phoneSecondary}</p>}
+                            {whatsapp && <p className="contact-info">💬 WhatsApp: {whatsapp}</p>}
+                            {email && <p className="contact-info">✉️ {email}</p>}
+                          </div>
+                          {(availableHours || responsibilities) && (
+                            <div style={{borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.75rem', marginTop: '0.75rem'}}>
+                              {availableHours && <p className="contact-info" style={{fontSize: '0.85rem'}}>🕐 <strong>Hours:</strong> {availableHours}</p>}
+                              {responsibilities && <p className="contact-info" style={{fontSize: '0.85rem', marginTop: '0.5rem'}}>📋 <strong>Responsibilities:</strong> {responsibilities}</p>}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
                     {/* General program contacts */}
                     {generalContacts.length > 0 && generalContacts.map((contact, idx) => {
-                      const role = getField(contact, 'role', 'Role', 'position', 'Position', 'Title', 'title');
+                      const role = getField(contact, 'role', 'Role', 'position', 'Position');
                       const name = getField(contact, 'name', 'Name', 'contact_name', 'Contact_Name');
-                      const phone = getField(contact, 'phone', 'Phone', 'phone_number', 'Phone_Number', 'Telephone');
+                      const title = getField(contact, 'title', 'Title', 'job_title', 'Job_Title');
+                      const organization = getField(contact, 'organization', 'Organization', 'org', 'company', 'Company');
+                      const phonePrimary = getField(contact, 'phone_primary', 'Phone_Primary', 'phone', 'Phone', 'phone_number');
+                      const phoneSecondary = getField(contact, 'phone_secondary', 'Phone_Secondary', 'phone2', 'Phone2');
                       const email = getField(contact, 'email', 'Email', 'email_address', 'Email_Address');
-                      const notes = getField(contact, 'notes', 'Notes', 'description', 'Description');
+                      const whatsapp = getField(contact, 'whatsapp', 'Whatsapp', 'WhatsApp', 'whats_app');
+                      const availableHours = getField(contact, 'available_hours', 'Available_Hours', 'hours', 'Hours', 'availability');
+                      const responsibilities = getField(contact, 'responsibilities', 'Responsibilities', 'duties', 'Duties');
+                      const isEmergency = getField(contact, 'is_emergency_contact', 'Is_Emergency_Contact', 'emergency', 'Emergency');
                       return (
-                        <div key={`general-${idx}`} className="contact-card">
-                          <h4>{role || 'Program Contact'}</h4>
-                          {name && <p className="contact-info" style={{fontWeight: 600, marginBottom: '0.5rem'}}>{name}</p>}
-                          {phone && <p className="contact-info">📱 {phone}</p>}
-                          {email && <p className="contact-info">✉️ {email}</p>}
-                          {notes && <p className="contact-info" style={{marginTop: '0.5rem', opacity: 0.8, fontSize: '0.85rem'}}>{notes}</p>}
+                        <div key={`general-${idx}`} className="contact-card" style={{position: 'relative'}}>
+                          {(isEmergency === 'Yes' || isEmergency === 'TRUE' || isEmergency === true || isEmergency === '1') && (
+                            <span style={{position: 'absolute', top: '0.75rem', right: '0.75rem', background: '#ef4444', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600}}>🚨 EMERGENCY</span>
+                          )}
+                          <h4 style={{color: '#4ade80', marginBottom: '0.25rem'}}>{role || 'Program Contact'}</h4>
+                          {organization && <p style={{fontSize: '0.85rem', opacity: 0.7, marginBottom: '0.5rem'}}>{organization}</p>}
+                          {name && <p className="contact-info" style={{fontWeight: 600, fontSize: '1.1rem', marginBottom: '0.25rem'}}>{name}</p>}
+                          {title && <p className="contact-info" style={{opacity: 0.8, marginBottom: '0.75rem', fontStyle: 'italic'}}>{title}</p>}
+                          <div style={{borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.75rem', marginTop: '0.5rem'}}>
+                            {phonePrimary && <p className="contact-info">📱 {phonePrimary}</p>}
+                            {phoneSecondary && <p className="contact-info">📞 {phoneSecondary}</p>}
+                            {whatsapp && <p className="contact-info">💬 WhatsApp: {whatsapp}</p>}
+                            {email && <p className="contact-info">✉️ {email}</p>}
+                          </div>
+                          {(availableHours || responsibilities) && (
+                            <div style={{borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.75rem', marginTop: '0.75rem'}}>
+                              {availableHours && <p className="contact-info" style={{fontSize: '0.85rem'}}>🕐 <strong>Hours:</strong> {availableHours}</p>}
+                              {responsibilities && <p className="contact-info" style={{fontSize: '0.85rem', marginTop: '0.5rem'}}>📋 <strong>Responsibilities:</strong> {responsibilities}</p>}
+                            </div>
+                          )}
                         </div>
                       );
                     })}

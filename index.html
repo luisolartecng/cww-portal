@@ -439,27 +439,68 @@
       return item.trip_id || item.Trip_ID || item.TripID || item.id || '';
     }
 
+    // Chat Storage Key
+    const CHAT_STORAGE_KEY = 'cww_chat_messages';
+    const initialBotMessage = { type: 'bot', text: '¡Hola! 👋 Soy el asistente de CWW con IA. Pregúntame sobre viajes, itinerarios día a día, qué empacar, o cualquier duda del programa.' };
+
     // Chatbot Component
     function Chatbot({ allData }) {
-      const [isOpen, setIsOpen] = React.useState(false);
-      const [messages, setMessages] = React.useState([
-        { type: 'bot', text: '¡Hola! 👋 Soy el asistente de CWW con IA. Pregúntame sobre viajes, itinerarios día a día, qué empacar, o cualquier duda del programa.' }
-      ]);
+      const [isOpen, setIsOpen] = React.useState(() => {
+        // Restore open state from sessionStorage
+        return sessionStorage.getItem('cww_chat_open') === 'true';
+      });
+      const [messages, setMessages] = React.useState(() => {
+        // Restore messages from sessionStorage
+        try {
+          const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        } catch (e) {}
+        return [initialBotMessage];
+      });
       const [input, setInput] = React.useState('');
       const [isTyping, setIsTyping] = React.useState(false);
       const messagesEndRef = React.useRef(null);
+      const abortControllerRef = React.useRef(null);
 
       const suggestions = ['Itinerario de 6to grado', '¿Qué empacar para 9no?', 'Compara viajes de 7mo y 8vo', '¿Cuál es el viaje más largo?'];
+
+      // Save messages to sessionStorage whenever they change
+      React.useEffect(() => {
+        sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+      }, [messages]);
+
+      // Save open state to sessionStorage
+      React.useEffect(() => {
+        sessionStorage.setItem('cww_chat_open', isOpen.toString());
+      }, [isOpen]);
 
       React.useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, [messages]);
+
+      // Cleanup abort controller on unmount
+      React.useEffect(() => {
+        return () => {
+          if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+          }
+        };
+      }, []);
 
       const handleSend = async (text = input) => {
         if (!text.trim()) return;
         setMessages(prev => [...prev, { type: 'user', text: text.trim() }]);
         setInput('');
         setIsTyping(true);
+
+        // Cancel any previous request
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+        abortControllerRef.current = new AbortController();
 
         try {
           const response = await fetch(CONFIG.CHATBOT_API_URL, {
@@ -474,14 +515,18 @@
               logistics: allData.logistics,
               educational: allData.educational,
               contacts: allData.contacts
-            })
+            }),
+            signal: abortControllerRef.current.signal
           });
           const data = await response.json();
           setMessages(prev => [...prev, { type: 'bot', text: data.reply || data.error || 'Error al procesar' }]);
         } catch (error) {
-          setMessages(prev => [...prev, { type: 'error', text: '❌ Error de conexión. Intenta de nuevo.' }]);
+          if (error.name !== 'AbortError') {
+            setMessages(prev => [...prev, { type: 'error', text: '❌ Error de conexión. Intenta de nuevo.' }]);
+          }
         } finally {
           setIsTyping(false);
+          abortControllerRef.current = null;
         }
       };
 
@@ -783,15 +828,18 @@
         trips: [], educational: [], groups: [], itineraries: [],
         logistics: [], packing: [], resources: [], contacts: [], faqs: []
       });
-      const [loading, setLoading] = React.useState(true);
+      const [initialLoading, setInitialLoading] = React.useState(true);
+      const [isRefreshing, setIsRefreshing] = React.useState(false);
       const [lastUpdate, setLastUpdate] = React.useState('');
       const [activeFilter, setActiveFilter] = React.useState('All');
       const [searchTerm, setSearchTerm] = React.useState('');
       const [selectedTrip, setSelectedTrip] = React.useState(null);
 
       React.useEffect(() => {
-        async function loadAllData() {
-          setLoading(true);
+        async function loadAllData(isRefresh = false) {
+          if (isRefresh) {
+            setIsRefreshing(true);
+          }
           try {
             const results = await Promise.all([
               fetchSheetData(CONFIG.SHEETS.trips),
@@ -819,11 +867,12 @@
           } catch (error) {
             console.error('Error loading data:', error);
           }
-          setLoading(false);
+          setInitialLoading(false);
+          setIsRefreshing(false);
         }
-        loadAllData();
+        loadAllData(false);
         if (CONFIG.REFRESH_INTERVAL > 0) {
-          const interval = setInterval(loadAllData, CONFIG.REFRESH_INTERVAL * 60 * 1000);
+          const interval = setInterval(() => loadAllData(true), CONFIG.REFRESH_INTERVAL * 60 * 1000);
           return () => clearInterval(interval);
         }
       }, []);
@@ -852,7 +901,7 @@
         return matchesFilter && matchesSearch;
       });
 
-      if (loading) return (
+      if (initialLoading) return (
         <>
           <header className="header">
             <h1>🌿 Classroom Without Walls</h1>
@@ -874,7 +923,7 @@
           </header>
 
           <div className="data-status">
-            ✅ Datos en vivo desde Google Sheets • {allData.trips.length} viajes • {allData.itineraries.length} actividades • Última actualización: {lastUpdate}
+            {isRefreshing ? '🔄 Actualizando datos...' : '✅'} Datos en vivo desde Google Sheets • {allData.trips.length} viajes • {allData.itineraries.length} actividades • Última actualización: {lastUpdate}
           </div>
 
           <div className="filters">

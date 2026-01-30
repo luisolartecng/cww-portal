@@ -635,6 +635,10 @@
       const logisticsItems = filterByTripOrGrade(allData.logistics);
       const educationalItems = filterByTripOrGrade(allData.educational);
       const resourceItems = filterByTripOrGrade(allData.resources);
+      const contactItems = filterByTripOrGrade(allData.contacts);
+
+      // Also get general program contacts (those without trip_id)
+      const generalContacts = (allData.contacts || []).filter(c => !getTripId(c));
 
       // Group itinerary by day
       const itineraryByDay = itineraryItems.reduce((acc, item) => {
@@ -667,6 +671,7 @@
         { id: 'educational', label: '📚 Educational' },
         { id: 'resources', label: '📎 Resources' },
         { id: 'logistics', label: '🚌 Logistics' },
+        { id: 'contacts', label: '📞 Contacts' },
         { id: 'faqs', label: '❓ FAQs' }
       ];
 
@@ -865,10 +870,51 @@
                         );
                       })}
                     </div>
-                    <div className="contact-card">
-                      <h4>📞 Emergency Contact</h4>
-                      <p className="contact-info">CNG Emergency Line<br/>CWW Coordinator</p>
-                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Contacts Tab */}
+              {activeTab === 'contacts' && (
+                <div className="tab-content active">
+                  <div className="logistics-grid">
+                    {/* Trip-specific contacts */}
+                    {contactItems.length > 0 && contactItems.map((contact, idx) => {
+                      const role = getField(contact, 'role', 'Role', 'position', 'Position', 'Title', 'title');
+                      const name = getField(contact, 'name', 'Name', 'contact_name', 'Contact_Name');
+                      const phone = getField(contact, 'phone', 'Phone', 'phone_number', 'Phone_Number', 'Telephone');
+                      const email = getField(contact, 'email', 'Email', 'email_address', 'Email_Address');
+                      const notes = getField(contact, 'notes', 'Notes', 'description', 'Description');
+                      return (
+                        <div key={idx} className="contact-card">
+                          <h4>{role || 'Contact'}</h4>
+                          {name && <p className="contact-info" style={{fontWeight: 600, marginBottom: '0.5rem'}}>{name}</p>}
+                          {phone && <p className="contact-info">📱 {phone}</p>}
+                          {email && <p className="contact-info">✉️ {email}</p>}
+                          {notes && <p className="contact-info" style={{marginTop: '0.5rem', opacity: 0.8, fontSize: '0.85rem'}}>{notes}</p>}
+                        </div>
+                      );
+                    })}
+                    {/* General program contacts */}
+                    {generalContacts.length > 0 && generalContacts.map((contact, idx) => {
+                      const role = getField(contact, 'role', 'Role', 'position', 'Position', 'Title', 'title');
+                      const name = getField(contact, 'name', 'Name', 'contact_name', 'Contact_Name');
+                      const phone = getField(contact, 'phone', 'Phone', 'phone_number', 'Phone_Number', 'Telephone');
+                      const email = getField(contact, 'email', 'Email', 'email_address', 'Email_Address');
+                      const notes = getField(contact, 'notes', 'Notes', 'description', 'Description');
+                      return (
+                        <div key={`general-${idx}`} className="contact-card">
+                          <h4>{role || 'Program Contact'}</h4>
+                          {name && <p className="contact-info" style={{fontWeight: 600, marginBottom: '0.5rem'}}>{name}</p>}
+                          {phone && <p className="contact-info">📱 {phone}</p>}
+                          {email && <p className="contact-info">✉️ {email}</p>}
+                          {notes && <p className="contact-info" style={{marginTop: '0.5rem', opacity: 0.8, fontSize: '0.85rem'}}>{notes}</p>}
+                        </div>
+                      );
+                    })}
+                    {contactItems.length === 0 && generalContacts.length === 0 && (
+                      <div className="no-data" style={{gridColumn: '1 / -1'}}>No contact information available. Please contact the CWW office directly.</div>
+                    )}
                   </div>
                 </div>
               )}
